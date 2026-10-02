@@ -124,7 +124,7 @@
 
                     const guardar = boton("💾 Guardar contacto", "#");
                     guardar.addEventListener("click", e => { e.preventDefault(); generarVcf(d, tel); });
-                    card.append(guardar, boton("✉️ Enviar correo", "mailto:" + d.correo, true));
+                    card.append(guardar);
                 })
                 .catch(() => mensaje("Tarjeta no encontrada."));
         }
