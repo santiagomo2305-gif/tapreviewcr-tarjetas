@@ -5,15 +5,95 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
     <title>Tarjeta Digital</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f2f4f7; margin: 0;
+               display: flex; justify-content: center; padding: 24px; }
+        .card { background: #fff; max-width: 380px; width: 100%; padding: 32px 24px;
+                border-radius: 16px; box-shadow: 0 4px 16px rgba(0,0,0,.1); text-align: center; }
+        h1 { font-size: 22px; margin: 0 0 8px; }
+        h2 { font-size: 15px; font-weight: normal; color: #555; margin: 0 0 4px; }
+        .empresa { color: #888; font-size: 14px; margin-bottom: 24px; }
+        .btn { display: block; padding: 14px; margin: 10px 0; border-radius: 10px;
+               background: #0b5ed7; color: #fff; text-decoration: none; font-size: 16px;
+               border: none; width: 100%; box-sizing: border-box; cursor: pointer; }
+        .btn.sec { background: #e9eef6; color: #0b5ed7; }
+    </style>
 </head>
-
 <body>
+    <div class="card" id="card">
+        <p>Cargando...</p>
+    </div>
 
-    <h1>Víctor Rodríguez Bogantes</h1>
-    <h2>Director Dirección Comercial de Personas</h2>
+    <script>
+        const params = new URLSearchParams(location.search);
+        const id = (params.get("id") || "").toLowerCase();
+        const card = document.getElementById("card");
 
-    <p>📞 8474-2111</p>
-    <p>✉️ vrodriguez@bp.fi.cr</p>
+        function mensaje(texto) {
+            card.innerHTML = "";
+            const p = document.createElement("p");
+            p.textContent = texto;
+            card.appendChild(p);
+        }
 
+        function boton(texto, href, secundario) {
+            const a = document.createElement("a");
+            a.className = "btn" + (secundario ? " sec" : "");
+            a.textContent = texto;
+            a.href = href;
+            return a;
+        }
+
+        function generarVcf(d, tel) {
+            const vcf = [
+                "BEGIN:VCARD",
+                "VERSION:3.0",
+                "FN:" + d.nombre,
+                "ORG:" + (d.empresa || ""),
+                "TITLE:" + (d.cargo || ""),
+                "TEL;TYPE=CELL:" + tel,
+                "EMAIL:" + d.correo,
+                "END:VCARD"
+            ].join("\r\n");
+            const blob = new Blob([vcf], { type: "text/vcard" });
+            const a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = d.nombre.replace(/\s+/g, "_") + ".vcf";
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+        }
+
+        if (!/^[a-z0-9-]+$/.test(id)) {
+            mensaje("Tarjeta no encontrada.");
+        } else {
+            fetch("clientes/" + id + ".json")
+                .then(r => { if (!r.ok) throw new Error(); return r.json(); })
+                .then(d => {
+                    const tel = "+506" + d.telefono.replace(/\D/g, "");
+                    document.title = d.nombre;
+                    card.innerHTML = "";
+
+                    const h1 = document.createElement("h1");
+                    h1.textContent = d.nombre;
+                    const h2 = document.createElement("h2");
+                    h2.textContent = d.cargo || "";
+                    const emp = document.createElement("div");
+                    emp.className = "empresa";
+                    emp.textContent = d.empresa || "";
+                    card.append(h1, h2, emp);
+
+                    const guardar = boton("💾 Guardar contacto", "#");
+                    guardar.addEventListener("click", e => { e.preventDefault(); generarVcf(d, tel); });
+                    card.append(
+                        guardar,
+                        boton("📞 Llamar", "tel:" + tel, true),
+                        boton("💬 WhatsApp", "https://wa.me/" + tel.replace("+", ""), true),
+                        boton("✉️ Enviar correo", "mailto:" + d.correo, true)
+                    );
+                })
+                .catch(() => mensaje("Tarjeta no encontrada."));
+        }
+    </script>
 </body>
 </html>
