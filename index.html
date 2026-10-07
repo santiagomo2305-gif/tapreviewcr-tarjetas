@@ -98,7 +98,7 @@
             fetch("clientes/" + id + ".json")
                 .then(r => { if (!r.ok) throw new Error(); return r.json(); })
                 .then(d => {
-                    const tel = "+506" + d.telefono.replace(/\D/g, "");
+                 const tel = "+506" + (d.telefonoContacto || d.telefono).replace(/\D/g, "");
                     document.title = d.nombre;
                     card.innerHTML = "";
 
