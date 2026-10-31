@@ -74,7 +74,7 @@
             const vcf = [
                 "BEGIN:VCARD",
                 "VERSION:3.0",
-                "FN:" + d.nombre,
+                "FN:" + (d.nombreContacto || d.nombre),
                 "ORG:" + (d.empresa || ""),
                 "TITLE:" + (d.cargo || ""),
                 "TEL;TYPE=CELL:" + tel,
@@ -84,7 +84,7 @@
             const blob = new Blob([vcf], { type: "text/vcard" });
             const a = document.createElement("a");
             a.href = URL.createObjectURL(blob);
-            a.download = d.nombre.replace(/\s+/g, "_") + ".vcf";
+            a.download = (d.nombreContacto || d.nombre).replace(/\s+/g, "_") + ".vcf";
             document.body.appendChild(a);
             a.click();
             a.remove();
