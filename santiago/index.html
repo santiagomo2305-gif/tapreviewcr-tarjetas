@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Santiago Soluciones Digitales</title>
+    <style>
+        :root {
+            --principal: #0f172a;   /* azul muy oscuro: botón y franja */
+            --secundario: #14b8a6;  /* turquesa: detalles */
+        }
+        * { box-sizing: border-box; }
+        html, body { height: 100%; }
+        body { font-family: Arial, Helvetica, sans-serif; background: #fff; margin: 0;
+               display: flex; flex-direction: column; min-height: 100vh; }
+        .contenido { flex: 1; display: flex; flex-direction: column; justify-content: center;
+                     padding: 32px 24px; max-width: 520px; width: 100%; margin: 0 auto; }
+        .inicial { width: 150px; height: 150px; border-radius: 50%; margin: 0 auto 24px;
+                   background: var(--principal); color: #fff; font-size: 64px; font-weight: bold;
+                   display: flex; align-items: center; justify-content: center;
+                   border: 3px solid var(--secundario); }
+        .foto { width: 150px; height: 150px; border-radius: 50%; object-fit: cover;
+                display: block; margin: 0 auto 24px; border: 3px solid var(--secundario); }
+        .datos { border-left: 6px solid var(--secundario); padding: 6px 0 6px 18px; margin-bottom: 32px; }
+        h1 { font-size: 26px; color: #333; margin: 0 0 12px; line-height: 1.2; }
+        h2 { font-size: 17px; color: #777; margin: 0 0 12px; line-height: 1.3; }
+        .contacto { font-size: 16px; color: #888; line-height: 1.6; }
+        .btn { display: block; padding: 14px; margin: 10px 0; border-radius: 30px;
+               background: var(--principal); color: #fff; text-decoration: none; font-size: 16px;
+               text-align: center; border: none; width: 100%; cursor: pointer; font-family: inherit; }
+        .btn.sec { background: #fff; color: var(--principal); border: 2px solid var(--principal); }
+
+        .banner { position: relative; height: 110px; overflow: hidden; }
+        .franja { position: absolute; left: 0; bottom: 22px; height: 68px; width: 88%;
+                  background: var(--principal); border-radius: 0 34px 34px 0; color: #fff;
+                  display: flex; align-items: center; gap: 14px; padding: 0 16px; z-index: 2; }
+        .logo { font-style: italic; font-weight: bold; font-size: 15px; line-height: 1.1; }
+        .barra { position: absolute; right: 0; bottom: 16px; width: 35%; height: 30px;
+                 background: var(--secundario); border-radius: 20px 0 0 20px; z-index: 1; }
+        .pill { position: absolute; right: 12px; bottom: 6px; width: 18%; height: 14px;
+                background: var(--principal); border-radius: 10px; z-index: 3; }
+    </style>
+</head>
+<body>
+    <div class="contenido" id="card"></div>
+
+    <div class="banner">
+        <div class="franja" id="franja"></div>
+        <div class="barra"></div>
+        <div class="pill"></div>
+    </div>
+
+    <script>
+        // ====== TUS DATOS (solo edita aquí) ======
+        const d = {
+            nombre: "Santiago",
+            apellido: "Soluciones Digitales",
+            descripcion: "Soluciones digitales",
+            telefono: "8332-8440",
+            correo: "",          // opcional: si lo dejas vacío no se muestra
+            foto: ""             // opcional: ej. "santiago.png" (súbela dentro de la carpeta santiago)
+        };
+        // =========================================
+
+        const card = document.getElementById("card");
+        const nombreCompleto = d.nombre + " " + d.apellido;
+        const tel = "+506" + d.telefono.replace(/\D/g, "");
+
+        function boton(texto, href, sec) {
+            const a = document.createElement("a");
+            a.className = "btn" + (sec ? " sec" : "");
+            a.textContent = texto;
+            a.href = href;
+            return a;
+        }
+
+        function generarVcf() {
+            const lineas = [
+                "BEGIN:VCARD",
+                "VERSION:3.0",
+                "N:" + d.apellido + ";" + d.nombre + ";;;",
+                "FN:" + nombreCompleto,
+                "ORG:" + d.apellido,
+                "TEL;TYPE=CELL:" + tel
+            ];
+            if (d.correo) lineas.push("EMAIL:" + d.correo);
+            lineas.push("END:VCARD");
+            const blob = new Blob([lineas.join("\r\n")], { type: "text/vcard" });
+            const a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = nombreCompleto.replace(/\s+/g, "_") + ".vcf";
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+        }
+
+        if (d.foto) {
+            const img = document.createElement("img");
+            img.className = "foto";
+            img.src = d.foto;
+            img.alt = nombreCompleto;
+            card.append(img);
+        } else {
+            const ini = document.createElement("div");
+            ini.className = "inicial";
+            ini.textContent = d.nombre.charAt(0);
+            card.append(ini);
+        }
+
+        const datos = document.createElement("div");
+        datos.className = "datos";
+        const h1 = document.createElement("h1");
+        h1.textContent = nombreCompleto;
+        const h2 = document.createElement("h2");
+        h2.textContent = d.descripcion;
+        const c = document.createElement("div");
+        c.className = "contacto";
+        c.textContent = d.telefono + (d.correo ? " - " + d.correo : "");
+        datos.append(h1, h2, c);
+        card.append(datos);
+
+        const guardar = boton("💾 Guardar contacto", "#");
+        guardar.addEventListener("click", e => { e.preventDefault(); generarVcf(); });
+        card.append(guardar);
+        card.append(boton("💬 WhatsApp", "https://wa.me/" + tel.replace("+", ""), true));
+
+        const franja = document.getElementById("franja");
+        for (let i = 0; i < 2; i++) {
+            const l = document.createElement("div");
+            l.className = "logo";
+            l.textContent = "Santiago Soluciones Digitales";
+            franja.append(l);
+        }
+    </script>
+</body>
+</html>
