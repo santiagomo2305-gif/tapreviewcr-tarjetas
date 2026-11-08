@@ -54,12 +54,13 @@
     <script>
         // ====== TUS DATOS (solo edita aquí) ======
         const d = {
-            nombre: "Santiago",
-            apellido: "Soluciones Digitales",
-            descripcion: "Soluciones digitales",
-            telefono: "8332-8440",
-            correo: "",          // opcional: si lo dejas vacío no se muestra
-            foto: "Santiago.png"
+         nombre: "Santiago",
+         apellido: "Morales",
+         empresa: "Soluciones Digitales",
+         descripcion: "Soluciones digitales",
+         telefono: "8332-8440",
+         correo: "",          // opcional: si lo dejas vacío no se muestra
+         foto: "Santiago.png"
         };
         // =========================================
 
@@ -81,7 +82,7 @@
                 "VERSION:3.0",
                 "N:" + d.apellido + ";" + d.nombre + ";;;",
                 "FN:" + nombreCompleto,
-                "ORG:" + d.apellido,
+                "ORG:" + d.empresa,
                 "TEL;TYPE=CELL:" + tel
             ];
             if (d.correo) lineas.push("EMAIL:" + d.correo);
@@ -129,7 +130,7 @@
         for (let i = 0; i < 2; i++) {
             const l = document.createElement("div");
             l.className = "logo";
-            l.textContent = "Santiago Soluciones Digitales";
+            l.textContent = d.empresa;
             franja.append(l);
         }
     </script>
